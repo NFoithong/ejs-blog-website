@@ -21,22 +21,51 @@ mongoose.connect('mongodb://localhost:27017/blogdb', { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-
+let posts = [];
 // create a new postSchema that contains a title and content.
-const postSchema = {
-    title: String,
-    content: String
-};
+// const postSchema = {
+//     title: String,
+//     content: String
+// };
 
 // create a new mongoose model using the schema to define your posts collection.
-const Post = mongoose.model('Post', postSchema);
+// const Post = mongoose.model('Post', postSchema);
 
 app.get('/', (req, res) => {
     res.render('home', {
-        startingContent: homeStartingContent
+        startingContent: homeStartingContent,
+        posts: posts
     });
-})
+});
 
+app.get('/about', (req, res) => {
+    res.render('about', {
+        aboutContent: aboutContent
+    });
+});
+
+app.get('/contact', (req, res) => {
+    res.render('contact', {
+        contactContent: contactContent
+    });
+});
+
+app.get('/compose', (req, res) => {
+    res.render('compose')
+});
+
+// post 
+app.post('/compose', (req, res) => {
+    // console.log(req.body.postTitle);
+    const post = {
+        title: req.body.postTitle,
+        content: req.body.postBody
+    };
+
+    posts.push(post);
+
+    res.redirect('/');
+});
 
 
 
