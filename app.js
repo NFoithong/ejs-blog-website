@@ -5,8 +5,8 @@ var path = require('path');
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const ejs = require("ejs");
-const res = require("express/lib/response");
-var _ = require('lodash');
+// const res = require("express/lib/response");
+const _ = require('lodash');
 
 
 
@@ -71,15 +71,19 @@ app.post('/compose', (req, res) => {
 
 // GET single post on page
 app.get('/posts/:postName', function(req, res) {
-    const postName = _.lowerCase([req.params.postName]);
+    const postName = _.lowerCase(req.params.postName);
 
     posts.forEach(function(post) {
-        const storedTitle = post.title;
+        const storedTitle = _.lowerCase(post.title);
 
         if (storedTitle === postName) {
-            console.log('Match Found!');
-        } else {
-            console.log('Not Match!');
+            //     console.log('Match Found!');
+            // } else {
+            //     console.log('Not Match!');
+            res.render('post', {
+                title: post.title,
+                content: post.content
+            });
         }
     });
 });
