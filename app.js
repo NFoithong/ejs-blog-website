@@ -23,20 +23,28 @@ mongoose.connect('mongodb://localhost:27017/blogdb', { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-let posts = [];
 // create a new postSchema that contains a title and content.
-// const postSchema = {
-//     title: String,
-//     content: String
-// };
+const postSchema = {
+    title: String,
+    content: String
+};
 
 // create a new mongoose model using the schema to define your posts collection.
-// const Post = mongoose.model('Post', postSchema);
+const Post = mongoose.model('Post', postSchema);
+
+// let posts = [];
+
 
 app.get('/', (req, res) => {
-    res.render('home', {
-        startingContent: homeStartingContent,
-        posts: posts
+    // res.render('home', {
+    //     startingContent: homeStartingContent,
+    //     posts: posts
+    // });
+    Post.find({}, (err, posts) => {
+        res.render('home', {
+            startingContent: homeStartingContent,
+            posts: posts
+        });
     });
 });
 
@@ -59,39 +67,48 @@ app.get('/compose', (req, res) => {
 // post 
 app.post('/compose', (req, res) => {
     // console.log(req.body.postTitle);
-    const post = {
+    const post = new Post({
         title: req.body.postTitle,
         content: req.body.postBody
-    };
+    });
 
-    posts.push(post);
-
-    res.redirect('/');
-});
-
-// GET single post on page
-app.get('/posts/:postName', function(req, res) {
-    const postName = _.lowerCase(req.params.postName);
-
-    posts.forEach(function(post) {
-        const storedTitle = _.lowerCase(post.title);
-
-        if (storedTitle === postName) {
-            //     console.log('Match Found!');
-            // } else {
-            //     console.log('Not Match!');
-            res.render('post', {
-                title: post.title,
-                content: post.content
-            });
+    post.save(function(err) {
+        if (!err) {
+            res.redirect('/');
         }
     });
+
 });
 
 
+// GET single post on page
+// app.get('/posts/:postName', function(req, res) {
+//     const postName = _.lowerCase(req.params.postName);
 
+//     posts.forEach(function(post) {
+//         const storedTitle = _.lowerCase(post.title);
 
+//         if (storedTitle === postName) {
+//             //     console.log('Match Found!');
+//             // } else {
+//             //     console.log('Not Match!');
+//             res.render('post', {
+//                 title: post.title,
+//                 content: post.content
+//             });
+//         }
+//     });
+// });
+app.get('/posts/:postId', (req, res) => {
+    const requestedPostId = req.params.postId;
 
+    Post.findOne({ _id: requestedPostId }, function(err, post) {
+        res.render('post', {
+            title: post.title,
+            content: post.content
+        });
+    });
+});
 
 app.listen(3000, function() {
     console.log("Server started on port 3000");
